@@ -104,7 +104,7 @@ Update config.env with your database credentials, API keys, and notification ser
 # Start the application: 
 
 ```bash
-npm start
+npm run dev
 ```
 # Usage
 For Applicants: Access the portal to submit applications and track their status.
