@@ -62,7 +62,7 @@ export default function SupportPage() {
   })
 
   const { toast } = useToast() // Using ShadCN's toast hook
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       // Simulate API call
@@ -74,6 +74,7 @@ export default function SupportPage() {
       })
       
       form.reset()
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Failed to submit support request",

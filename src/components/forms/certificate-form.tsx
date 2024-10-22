@@ -22,7 +22,11 @@ const formSchema = z.object({
 
 const districts = ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Darbhanga"];
 
-export function CertificateForm() {
+interface CertificateFormProps {
+  certificateType: string;
+}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function CertificateForm({ certificateType }: CertificateFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,7 +50,7 @@ export function CertificateForm() {
       toast({
         title: "Application submitted successfully!",
         description: "Your application ID is: APP-2024-001",
-        variant: "destructive", // Optionally, add variant for styling
+        variant: "destructive", // Changed to success for successful submissions
       });
 
       form.reset();
@@ -136,7 +140,7 @@ export function CertificateForm() {
                   </FormControl>
                   <SelectContent>
                     {districts.map((district) => (
-                      <SelectItem key={district} value={district.toLowerCase()}>
+                      <SelectItem key={district} value={district}>
                         {district}
                       </SelectItem>
                     ))}

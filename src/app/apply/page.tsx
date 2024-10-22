@@ -39,7 +39,7 @@ export default function ApplyPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CertificateForm certificateType={type.id} />
+                  <CertificateForm key={type.id} certificateType={type.id} />
                 </CardContent>
               </Card>
             </TabsContent>
