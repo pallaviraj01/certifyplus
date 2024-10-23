@@ -39,8 +39,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const navigation = [
-  { 
-    name: 'Certificate Services', 
+  {
+    name: 'Certificate Services',
     items: [
       { name: 'Apply for Certificates', href: '/apply', description: 'Apply for various certificates and documents', icon: FileText },
       { name: 'Track Application', href: '/track', description: 'Track your application status', icon: Search },
@@ -85,9 +85,12 @@ export default function Header() {
       {/* Top Bar */}
       <div className="container border-b">
         <div className="flex h-10 items-center justify-between text-sm">
-          <div className="flex items-center text-center space-x-4">
-            <span className="text-muted-foreground  ">Welcome to Revenue Department Services</span>
+          <div className="flex-1 flex justify-center">
+            <div className="text-center">
+              <span className="text-muted-foreground">Welcome to Revenue Department Services</span>
+            </div>
           </div>
+
           <div className="flex items-center space-x-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -109,13 +112,14 @@ export default function Header() {
             <ModeToggle />
           </div>
         </div>
+
       </div>
 
       {/* Main Navigation */}
       <div className="container flex items-center justify-between h-16">
         <Link href="/" className="flex items-center space-x-2">
           <GanttChart className="h-6 w-6" />
-          <span className="hidden font-bold sm:inline-block">Revenue Department</span>
+          <span className="hidden font-bold sm:inline-block">CertifyPlus</span>
         </Link>
 
         <div className="flex items-center space-x-4">
@@ -126,7 +130,7 @@ export default function Header() {
             />
             <Search className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
           </div>
-          
+
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-600" />
