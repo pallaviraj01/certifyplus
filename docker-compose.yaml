@@ -1,0 +1,17 @@
+version: "3.4"
+
+services:
+  postgres:
+    container_name: certifyplus
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: certifyplus
+      POSTGRES_DB: certifyplus
+      POSTGRES_PASSWORD: certifyplus
+
+volumes:
+  postgres_data:
