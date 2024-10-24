@@ -38,6 +38,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import {useEffect, useRef } from 'react'; // Ensure these imports are here
+import searchOptions, { SearchOption } from '@/components/SearchLogic';
+
+
 const navigation = [
   {
     name: 'Certificate Services',
@@ -67,6 +71,7 @@ const navigation = [
   },
 ];
 
+
 const languages = [
   { code: 'en', name: 'English' },
   { code: 'hi', name: 'हिंदी' },
@@ -74,11 +79,59 @@ const languages = [
   { code: 'gu', name: 'ગુજરાતી' },
 ];
 
+
 export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentLang, setCurrentLang] = useState('en');
+
+
+  const [query, setQuery] = useState('');
+  const [filteredOptions, setFilteredOptions] = useState<SearchOption[]>([]);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const suggestionsRef = useRef<HTMLUListElement>(null);
+
+  //search filter logic
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    const filtered = value
+      ? searchOptions.filter(option => option.name.toLowerCase().includes(value.toLowerCase()))
+      : [];
+
+    setFilteredOptions(filtered);
+  };
+
+  const handleOptionClick = (route: string) => {
+    // Navigate to the search result page (or a specific page based on option)
+    window.location.href = route;
+    setQuery(''); // Clear the input after selection
+    setFilteredOptions([]); // Clear the suggestions
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current && 
+        !searchRef.current.contains(event.target as Node) && 
+        suggestionsRef.current && 
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setFilteredOptions([]); // Hide suggestions
+        setQuery(''); // Optionally clear the search bar
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+
 
   return (
     <header className="w-full border-b bg-background">
@@ -115,21 +168,42 @@ export default function Header() {
 
       </div>
 
-      {/* Main Navigation */}
+      {/* Main Navigation : Search bar, notification icon, menu button*/} 
       <div className="container flex items-center justify-between h-16">
         <Link href="/" className="flex items-center space-x-2">
           <GanttChart className="h-6 w-6" />
           <span className="hidden font-bold sm:inline-block">CertifyPlus</span>
         </Link>
 
+
+
+        {/** Search */}
         <div className="flex items-center space-x-4">
-          <div className="hidden md:flex relative w-96">
+          <div className="hidden md:flex relative w-96" ref={searchRef}>
             <Input
               placeholder="Search services, track application..."
               className="pr-10"
+              value={query} // Ensure the input value is controlled
+              onChange={handleChange} // Attach the change handler
             />
             <Search className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+
+            {filteredOptions.length > 0 && (
+              <ul className=" suggestion-box bg-white border border-gray-200 shadow-lg" ref={suggestionsRef}>
+                {filteredOptions.map((option) => (
+                  <li key={option.name} className="hover:bg-gray-100">
+                    <a 
+                      onClick={() => handleOptionClick(option.route)} 
+                      className="block p-2 cursor-pointer"
+                    >
+                      {option.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
+
 
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
