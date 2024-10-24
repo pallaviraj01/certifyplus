@@ -76,3 +76,14 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+
+.suggestion-box {
+  position: absolute;  /* Ensures it appears below the input */
+  top: 100%;  /* Positions it below the input */
+  left: 0;
+  z-index: 10;  /* Ensures it's above other content */
+  width: 100%;  /* Matches the width of the input */
+  max-height: 300px;  /* Optional: limit height */
+  overflow-y: auto;  /* Optional: add scroll if too many items */
+}
