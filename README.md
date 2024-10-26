@@ -3,18 +3,18 @@
 It aims to streamline the process of issuing caste and other certificates, ensure real-time monitoring of application statuses, and optimize resource allocation based on demand analysis. 
 With Certify+, government departments can effectively manage certificate issuance, reduce backlogs, and provide better service to citizens through an automated and data-driven approach.
 
-# Problem Statement Title:
+## Problem Statement Title:
 Online issuance of Caste and other certificates by Revenue Department need real-time monitoring
 
-# Description:
+## Description:
 The issuance of Caste and other certificates by the Revenue Department needs real-time monitoring to evaluate the resource allocation and demand for such certificates. The allocation of resources at present is done without any analysis, leading to huge backlogs in some Sub-divisions where the application load is very high. Any effective monitoring at the District and Central level with detailed evaluation shall enable better allocation of resources for the issuance of such certificates.
 
-# Organization:
+## Organization:
 Government of NCT of Delhi
 Department:
 IT Department, GNCTD
 
-# Solution
+## Solution
 Certify+ provides a web-based system that integrates multiple functionalities:
 
 - **Online Application Portal**:   Allows applicants to submit their details and required documents.
@@ -23,7 +23,7 @@ Certify+ provides a web-based system that integrates multiple functionalities:
 - **Notification and Alert System**:   Sends timely alerts and notifications to stakeholders based on system performance metrics.
 - **Feedback Mechanism**:   Collects and analyzes feedback from both applicants and government officials to continuously improve the system.
 
-# Key Features
+## Key Features
 - **Real-Time Data Integration:**
 
   * *Centralized application database with live updates on application statuses.*
@@ -79,7 +79,7 @@ The detailed Data Flow Diagram (DFD) for Certify+ outlines the interactions betw
   * *Notification System*
   * *Feedback Mechanism*
 
-# Installation and Setup
+## Installation and Setup
 
 Installation and Setup
 ### Clone the repository:
@@ -101,14 +101,14 @@ npm install
 
 Update config.env with your database credentials, API keys, and notification services.
 
-# Start the application: 
+## Start the application: 
 
 ```bash
 npm run dev
 ```
-# Usage
+## Usage
 For Applicants: Access the portal to submit applications and track their status.
 For Administrators: Use the real-time dashboard to monitor application loads, analyze performance, and allocate resources.
-# Contributing
+## Contributing
 Contributions are welcome! Please create a pull request or report issues to enhance the system further.
 
