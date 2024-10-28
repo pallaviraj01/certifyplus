@@ -6,14 +6,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useToast,toast } from '@/hooks/use-toast'
 
 export default function FeedbackPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [feedback, setFeedback] = useState('')
+  const { toast } = useToast()
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
+    if(!name || !email || !feedback){
+      toast({
+        title: 'All fields are required',
+        type: 'background',
+        duration: 3000,
+      })
+    }
     // Handle feedback submission
     console.log('Feedback submitted:', { name, email, feedback })
     // Reset form fields
