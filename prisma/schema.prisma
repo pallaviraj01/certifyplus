@@ -13,28 +13,349 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          Int          @id @default(autoincrement())
-  email       String       @unique
-  name        String?
-  certificates Certificate[]
-}
-
-model Certificate {
-  id            Int      @id @default(autoincrement())
-  certificateId String   @unique
-  userId        Int
-  status        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  user          User     @relation(fields: [userId], references: [id])
-}
-
-model Contact {
+model feedback {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
-  message   String
+  feedback  String
   createdAt DateTime @default(now())
 }
+
+model CasteCertificate {
+  id                Int               @id @default(autoincrement())
+  applicantName     String
+  fatherName        String
+  motherName        String
+  husbandName       String?
+  gender            Gender
+  mobileNumber      String
+  email             String
+  state             String
+  district          String
+  subDivision       String
+  block             String
+  wardNo            String
+  villageTown       String
+  postOffice        String
+  policeStation     String
+  pinCode           String
+  aadhaarNumber     String
+  residenceType     String
+  purpose           String
+  selfDeclaration   String
+  certificateNumber String            @unique
+  issueDate         DateTime          @default(now())
+  expiryDate        DateTime?
+  status            CertificateStatus @default(PENDING)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  THIRD_GENDER
+}
+
+enum CertificateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+model Citizen {
+  citizen_id     Int            @id @default(autoincrement())
+  full_name      String
+  email          String         @unique
+  phone_number   String         @unique
+  password_hash  String
+  address        String
+  aadhaar_number String?        @unique // Aadhaar should be optional and securely stored
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  is_active      Boolean        @default(true) // To activate/deactivate citizen access
+  is_verified    Boolean        @default(false) // To mark if the citizen is verified
+  role           Role // Enum for defining access level (e.g., CITIZEN, ADMIN)
+  login_attempts Int            @default(0) // Track failed login attempts for security
+  last_login     DateTime? // Track last login date for monitoring
+  // notifications       Notification[]               // Notifications related to the citizen
+  // auditLogs           AuditLog[]                  // Log of actions performed by citizen
+  Token          Token[]
+  Application    Application[]
+  Notification   Notification[]
+  UserRole       UserRole[]
+
+  // Indexes for faster searching and querying on frequently used fields
+  @@index([email])
+  @@index([aadhaar_number])
+  @@index([phone_number])
+}
+
+enum Role {
+  CITIZEN
+  OFFICER
+  ADMIN
+}
+
+model Token {
+  token_id    Int      @id @default(autoincrement())
+  citizen_id  Int
+  token       String   @unique // Store the JWT itself or a hashed version
+  created_at  DateTime @default(now())
+  expires_at  DateTime
+  is_valid    Boolean  @default(true)
+  ip_address  String?
+  device_info String?
+  citizen     Citizen  @relation(fields: [citizen_id], references: [citizen_id])
+}
+
+model District {
+  district_id   Int           @id @default(autoincrement())
+  district_name String
+  state_name    String
+  subdivisions  Subdivision[]
+  offices       Officer[]
+  // resourceAllocations ResourceAllocation[]
+}
+
+model Subdivision {
+  subdivision_id     Int                  @id @default(autoincrement())
+  subdivision_name   String
+  district_id        Int
+  officers           Officer[]
+  // resourceAllocations ResourceAllocation[]
+  district           District             @relation(fields: [district_id], references: [district_id])
+  Application        Application[]
+  ResourceAllocation ResourceAllocation[]
+
+  @@index([subdivision_id])
+  @@index([subdivision_name])
+}
+
+model Officer {
+  officer_id     Int         @id @default(autoincrement())
+  full_name      String
+  email          String      @unique
+  contact_number String
+  password_hash  String
+  subdivision_id Int
+  district_id    Int
+  // notifications Notification[]
+  // auditLogs     AuditLog[]
+  role           String
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+  subdivision    Subdivision @relation(fields: [subdivision_id], references: [subdivision_id])
+
+  District District @relation(fields: [district_id], references: [district_id])
+
+  Admin Admin[]
+
+  Application Application[]
+
+  Document Document[]
+
+  ApplicationStatusHistory ApplicationStatusHistory[]
+
+  UserRole UserRole[]
+}
+
+model Admin {
+  admin_id       Int      @id @default(autoincrement())
+  full_name      String
+  email          String   @unique
+  password_hash  String
+  contact_number String
+  officer_id     Int
+  role           String
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  officer        Officer  @relation(fields: [officer_id], references: [officer_id])
+
+  UserRole UserRole[]
+
+  @@index([email])
+  @@index([officer_id])
+}
+
+model Application {
+  application_id      Int               @id @default(autoincrement()) // Primary Key
+  citizen_id          Int // Foreign Key, references Citizen
+  certificate_type_id Int // Foreign Key, references CertificateType
+  officer_id          Int? // Foreign Key, references Officer, nullable if no officer is assigned
+  subdivision_id      Int // Foreign Key, references Subdivision
+  submission_date     DateTime          @default(now()) // Date application was submitted
+  current_status      ApplicationStatus // Enum for tracking status
+  priority            Priority // Enum for priority level
+  remarks             String? // Optional remarks field
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+
+  // Relationships with other models
+  citizen                  Citizen                    @relation(fields: [citizen_id], references: [citizen_id])
+  officer                  Officer?                   @relation(fields: [officer_id], references: [officer_id])
+  subdivision              Subdivision                @relation(fields: [subdivision_id], references: [subdivision_id])
+  CertificateType          CertificateType[]
+  Document                 Document[]
+  ApplicationStatusHistory ApplicationStatusHistory[]
+
+  // Indexes for optimized queries on frequently accessed fields
+  @@index([citizen_id])
+  @@index([certificate_type_id])
+  @@index([current_status, priority])
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model CertificateType {
+  certificate_type_id Int      @id @default(autoincrement()) // Primary Key
+  certificate_name    String // Name of the certificate
+  description         String? // Optional description
+  required_documents  String[] // List of required documents as an array of strings
+  processing_time     Int // Estimated processing time in days
+
+  // Relationship with Application (assuming a one-to-many relationship where multiple applications can be for the same certificate type)
+  applications Application[]
+
+  // Index for optimized search on certificate_name
+  @@index([certificate_name])
+}
+
+model Document {
+  document_id     Int                @id @default(autoincrement()) // Primary Key
+  application_id  Int // Foreign Key, references Application
+  document_type   DocumentType // Enum for document type (e.g., Proof of Identity, Residence)
+  document_path   String // URL or file path for document storage
+  uploaded_at     DateTime           @default(now()) // Timestamp for when the document was uploaded
+  verified_status VerificationStatus // Enum for verification status (e.g., Pending, Verified, Rejected)
+  verified_by     Int? // Foreign Key, references Officer; nullable if not verified yet
+
+  // Relationships with other models
+  application Application @relation(fields: [application_id], references: [application_id])
+  officer     Officer?    @relation(fields: [verified_by], references: [officer_id])
+
+  // Indexes for faster querying
+  @@index([application_id])
+  @@index([verified_status])
+}
+
+enum DocumentType {
+  PROOF_OF_IDENTITY
+  PROOF_OF_RESIDENCE
+  INCOME_PROOF
+  BIRTH_CERTIFICATE
+  OTHER
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model ApplicationStatusHistory {
+  status_history_id Int               @id @default(autoincrement()) // Primary Key
+  application_id    Int // Foreign Key, references Application
+  status            ApplicationStatus // Enum for status (e.g., Submitted, Under Review, Approved, Rejected)
+  updated_by        Int // Foreign Key, references Officer who updated the status
+  updated_at        DateTime          @default(now()) // Timestamp of status update
+  remarks           String? // Optional remarks or comments
+
+  // Relationships with other models
+  application Application @relation(fields: [application_id], references: [application_id])
+  officer     Officer     @relation(fields: [updated_by], references: [officer_id])
+
+  // Indexes for efficient querying
+  @@index([application_id])
+  @@index([status])
+}
+
+model ResourceAllocation {
+  resource_allocation_id Int      @id @default(autoincrement()) // Primary Key
+  subdivision_id         Int // Foreign Key, references Subdivision
+  allocated_officers     Int // Number of officers allocated
+  allocated_resources    String[] // List of resources (e.g., Computers, Printers)
+  allocation_date        DateTime // Date of resource allocation
+  created_at             DateTime @default(now()) // Record creation timestamp
+  updated_at             DateTime @updatedAt // Automatically updates on record modification
+
+  // Relationship with Subdivision model
+  subdivision Subdivision @relation(fields: [subdivision_id], references: [subdivision_id])
+
+  // Index for optimized queries
+  @@index([subdivision_id])
+}
+
+model Notification {
+  notification_id Int        @id @default(autoincrement()) // Primary Key
+  citizen_id      Int // Foreign Key, references Citizen
+  message         String // Content of the notification
+  read_status     ReadStatus // Enum for notification status (e.g., Read, Unread)
+  sent_at         DateTime   @default(now()) // Timestamp for when the notification was sent
+
+  // Relationship with Citizen model
+  citizen Citizen @relation(fields: [citizen_id], references: [citizen_id])
+
+  // Index for faster querying
+  @@index([citizen_id])
+  @@index([read_status])
+}
+
+enum ReadStatus {
+  READ
+  UNREAD
+}
+
+model UserRole {
+  user_role_id Int  @id @default(autoincrement()) // Primary Key
+  user_id      Int // Foreign Key referencing Citizen, Officer, or Admin ID
+  role         Role // Enum for role (e.g., Citizen, Officer, Admin)
+
+  // Relationships to user types with unique constraint names
+  user        Citizen?   @relation(fields: [user_id], references: [citizen_id], map: "UserRole_Citizen_user_id_fkey")
+  userOfficer Officer?   @relation(fields: [user_id], references: [officer_id], map: "UserRole_Officer_user_id_fkey")
+  userAdmin   Admin?     @relation(fields: [user_id], references: [admin_id], map: "UserRole_Admin_user_id_fkey")
+  // AuditLog    AuditLog[]
+
+  // Indexes for faster queries
+  @@index([user_id])
+  @@index([role])
+}
+
+// model AuditLog {
+//   log_id               Int        @id @default(autoincrement())
+//   user_id              Int
+//   user_role            UserRole   @relation(fields: [userRoleUser_role_id], references: [user_role_id]) // Enum to specify the role type of the user (e.g., Citizen, Officer, Admin) 
+//   action               ActionType // Enum for action type (e.g., Login, Status Change)
+//   timestamp            DateTime   @default(now()) // Time of the action
+//   ip_address           String // IP address of the user performing the action
+//   remarks              String? // Optional remarks about the action
+//   userRoleUser_role_id Int
+
+//   // Indexes for efficient querying
+//   @@index([user_id])
+//   @@index([action, timestamp])
+// }
+
+// enum ActionType {
+//   LOGIN
+//   STATUS_CHANGE
+//   LOGOUT
+//   CREATE_APPLICATION
+//   UPDATE_APPLICATION
+//   DELETE_APPLICATION
+//   VIEW_APPLICATION
+//   OTHER
+// }
