@@ -21,6 +21,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ success: true, contact }, { status: 201 })
   } catch (error) {
+    console.error(error); //log the error for debugging
     return NextResponse.json({ error: 'Failed to submit the form' }, { status: 500 })
   }
 }
