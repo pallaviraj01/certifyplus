@@ -105,7 +105,7 @@ export default function Header() {
   };
 
   const handleOptionClick = (route: string) => {
-    // Navigate to the search result page (or a specific page based on option)
+    // Navigate to the search result page 
     window.location.href = route;
     setQuery(''); // Clear the input after selection
     setFilteredOptions([]); // Clear the suggestions
